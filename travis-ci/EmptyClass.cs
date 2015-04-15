@@ -1,11 +1,70 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Web;
+using System.ComponentModel.Composition;
 namespace travisci
 {
+	[Export(typeof(cDashboard.IPlugin))]
+	[ExportMetadata("name","travis-ci")]
+	class Travisci:cDashboard.IPlugin{
+		System.Collections.Generic.List<EmptyClass> things;
+		public static bool save=false;
+		public bool DisposeOnClose{
+			get{
+				return true;
+			}
+		}
+		public Travisci(){
+			things=new System.Collections.Generic.List<EmptyClass>();
+		}
+		public bool NeedsSaving{
+			get{
+				return Travisci.save;
+			}
+		}
+		public Form GetForm(){
+			var i=new EmptyClass();
+			things.Add(i);
+			return i;
+		}
+		private Form GetForm(System.Drawing.Point p,string url){
+			var i=(EmptyClass)GetForm();
+			i.Location= p ;
+			i.seturl(url);
+			return i;
+		}
+
+		public void SavePlugin(string settingslocation){
+			if(System.IO.File.Exists(settingslocation+"travisci.cDash"))
+				System.IO.File.Delete(settingslocation+"travisci.cDash");
+			var g=System.IO.File.CreateText(settingslocation+"travisci.cDash");
+			foreach(var c in things){
+				g.Write(c.Location.X+" ");
+				g.Write(c.Location.Y+" ");
+				g.Write(c.geturl()+" ");
+				g.Write("\r\n");
+			}
+			g.Close();
+		}
+		public void LoadPlugin(string settingslocation,cDashboard.cDashboard c)
+		{
+			if(!System.IO.File.Exists(settingslocation+"travisci.cDash"))
+				return;
+
+		}
+		public Type getFormType(){
+			return typeof(EmptyClass);
+		}
+
+	}
 	class imagePanel:Panel{
 		System.Net.WebClient getter;
-		bool cando;
+		bool cando,successful;
+		public bool Successful{
+			get{
+				return successful;
+			}
+		}
 		public imagePanel(){
 			base.Paint+=paintEventHandler;
 			Dock=DockStyle.Fill;
@@ -34,6 +93,7 @@ namespace travisci
 			}
 		}
 		private void updatepicture(){
+			successful=false;
 			try{
 				if(cando){
 				getter.DownloadDataAsync(new System.Uri(url));
@@ -50,6 +110,7 @@ namespace travisci
 				var d=new System.IO.MemoryStream(e.Result);
 				img=System.Drawing.Image.FromStream(d);
 				this.Refresh();
+				successful=true;
 			}
 		}
 		string url;
@@ -58,13 +119,22 @@ namespace travisci
 	}
 	public class EmptyClass:Form
 	{
+		public string geturl(){
+			return url.Text;
+		}
+		public void seturl(string d){
+			url.Text=d;
+		}
 		TableLayoutPanel thing;
 		imagePanel g;
 		TextBox url;
+		void OnMove(object sender,EventArgs e){
+			Travisci.save=true;
+		}
 		public EmptyClass ()
 		{
+			this.Move+=OnMove;
 			this.thing=new TableLayoutPanel();
-			
 			thing.RowCount=2;
 			thing.Dock=DockStyle.Fill;
 			this.Controls.Add(thing);
@@ -79,6 +149,9 @@ namespace travisci
 		}
 		private void onTextAltered(object sender,EventArgs e){
 			g.Url=this.url.Text;
+			if(g.Successful){
+				Travisci.save=true;
+			}
 		}
 	}
 }
