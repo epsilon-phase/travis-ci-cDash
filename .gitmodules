@@ -1,0 +1,3 @@
+[submodule "cDashboard"]
+	path = cDashboard
+	url = https://github.com/jaked122/cDashboard

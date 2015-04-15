@@ -3,12 +3,18 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "travis-ci", "travis-ci\travis-ci.csproj", "{BAFD7511-4970-4ACE-A1D9-A8A587036617}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cDashboard", "cDashboard\cDashboard\cDashboard.csproj", "{842D8152-3A6A-4141-90A7-DF21145A0F75}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{842D8152-3A6A-4141-90A7-DF21145A0F75}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{842D8152-3A6A-4141-90A7-DF21145A0F75}.Debug|x86.Build.0 = Debug|Any CPU
+		{842D8152-3A6A-4141-90A7-DF21145A0F75}.Release|x86.ActiveCfg = Release|Any CPU
+		{842D8152-3A6A-4141-90A7-DF21145A0F75}.Release|x86.Build.0 = Release|Any CPU
 		{BAFD7511-4970-4ACE-A1D9-A8A587036617}.Debug|x86.ActiveCfg = Debug|x86
 		{BAFD7511-4970-4ACE-A1D9-A8A587036617}.Debug|x86.Build.0 = Debug|x86
 		{BAFD7511-4970-4ACE-A1D9-A8A587036617}.Release|x86.ActiveCfg = Release|x86

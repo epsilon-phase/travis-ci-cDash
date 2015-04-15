@@ -16,7 +16,7 @@ namespace travisci
 		void paintEventHandler(object sender,PaintEventArgs e){
 			var g=e.Graphics;
 			g.Clear(System.Drawing.SystemColors.ControlLight);
-			if(img!=null)
+			if(img!=null)			
 				g.DrawImage(this.img,new System.Drawing.RectangleF(new System.Drawing.PointF(0,0),new System.Drawing.SizeF(this.Width,this.Height)));
 			else{
 				var red=System.Drawing.Pens.Red;
