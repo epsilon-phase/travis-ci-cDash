@@ -92,15 +92,19 @@ namespace travisci
 				this.updatepicture();
 			}
 		}
-		private void updatepicture(){
-			successful=false;
+		public void updatepicture(){
+
 			try{
 				if(cando){
 				getter.DownloadDataAsync(new System.Uri(url));
+					successful=true;
 					cando=false;
 				}
 			
-			}catch(System.UriFormatException e){}
+			}catch(System.UriFormatException e){
+				Console.WriteLine(e.Message);
+				successful=false;
+			}
 		}
 		void DownloadDataCompleted(object sender,
 			System.Net.DownloadDataCompletedEventArgs e){
@@ -119,20 +123,32 @@ namespace travisci
 	}
 	public class EmptyClass:Form
 	{
+		string goodurl;
 		public string geturl(){
-			return url.Text;
+			return goodurl;
 		}
 		public void seturl(string d){
 			url.Text=d;
+			g.Url=d;
+			if(g.Successful)
+				goodurl=d;
 		}
 		TableLayoutPanel thing;
 		imagePanel g;
 		TextBox url;
+		Timer checkagain;
 		void OnMove(object sender,EventArgs e){
 			Travisci.save=true;
 		}
+		void OnTick(object sender,EventArgs e){
+			g.updatepicture();
+		}
 		public EmptyClass ()
 		{
+			checkagain=new Timer();
+			checkagain.Enabled=true;
+			checkagain.Interval=20*60;
+			checkagain.Tick+=OnTick;
 			this.Move+=OnMove;
 			this.thing=new TableLayoutPanel();
 			thing.RowCount=2;
@@ -150,6 +166,7 @@ namespace travisci
 		private void onTextAltered(object sender,EventArgs e){
 			g.Url=this.url.Text;
 			if(g.Successful){
+				goodurl=url.Text;
 				Travisci.save=true;
 			}
 		}
