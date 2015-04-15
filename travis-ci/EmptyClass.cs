@@ -76,7 +76,14 @@ namespace travisci
 			var g=e.Graphics;
 			g.Clear(System.Drawing.SystemColors.ControlLight);
 			if(img!=null)			
-				g.DrawImage(this.img,new System.Drawing.RectangleF(new System.Drawing.PointF(0,0),new System.Drawing.SizeF(this.Width,this.Height)));
+			{
+				img.Width=this.Width;
+				img.Height=this.Height;
+				var q=img.Draw();
+				q.Save("hello.png");
+				g.DrawImage(q,new System.Drawing.RectangleF(new System.Drawing.PointF(0,0),new System.Drawing.SizeF(Width,Height)));
+
+			}
 			else{
 				var red=System.Drawing.Pens.Red;
 				g.DrawLine(red,new System.Drawing.PointF(0,0),new System.Drawing.PointF(Width,Height));
@@ -89,6 +96,7 @@ namespace travisci
 			}
 			set{
 				this.url=value;
+				this.img=null;
 				this.updatepicture();
 			}
 		}
@@ -109,34 +117,48 @@ namespace travisci
 		void DownloadDataCompleted(object sender,
 			System.Net.DownloadDataCompletedEventArgs e){
 			cando=true;
+
 			if(e.Result!=null)
 			{
-				var d=new System.IO.MemoryStream(e.Result);
-				img=System.Drawing.Image.FromStream(d);
+				var d=e.Result;
+				
+				var str = System.Text.Encoding.Default.GetString(d);
+				var qqq=System.IO.File.CreateText("ff");
+				qqq.Write(str);
+				qqq.Close();
+				img=Svg.SvgDocument.Open("ff");
 				this.Refresh();
 				successful=true;
+			}else{
+				Console.WriteLine("download completed with error");
+				Console.WriteLine(e.Error.Message);
 			}
 		}
 		string url;
-		private System.Drawing.Image img;
+		private Svg.SvgDocument img;
 
 	}
 	public class EmptyClass:Form
 	{
 		string goodurl;
 		public string geturl(){
-			return goodurl;
+			return String.Format("https://travis-ci.org/{0}/{1}.svg?branch=master",user.Text,repon.Text);
+			
 		}
 		public void seturl(string d){
-			url.Text=d;
+			user.Text=d;
 			g.Url=d;
 			if(g.Successful)
 				goodurl=d;
 		}
 		TableLayoutPanel thing;
+		TabControl page;
+		TabPage view,config;
 		imagePanel g;
-		TextBox url;
+		TextBox user,repon;
 		Timer checkagain;
+		Label username,repo;
+
 		void OnMove(object sender,EventArgs e){
 			Travisci.save=true;
 		}
@@ -145,30 +167,77 @@ namespace travisci
 		}
 		public EmptyClass ()
 		{
+			page=new TabControl();
+			page.Dock=DockStyle.Fill;
 			checkagain=new Timer();
 			checkagain.Enabled=true;
 			checkagain.Interval=20*60*1000;
 			checkagain.Tick+=OnTick;
 			this.Move+=OnMove;
-			this.thing=new TableLayoutPanel();
-			thing.RowCount=2;
+			view=new TabPage();
+			g=new imagePanel();
+			g.Dock=DockStyle.Fill;
+			view.Controls.Add(g);
+			view.Text="View";
+			thing=new TableLayoutPanel();
 			thing.Dock=DockStyle.Fill;
-			this.Controls.Add(thing);
-			this.g=new imagePanel();
-			thing.Controls.Add(g);
-			thing.SetRow(g,0);
-			url=new TextBox();
-			url.Dock=DockStyle.Fill;
-			thing.Controls.Add(url);
-			thing.SetRow(url,1);
-			url.TextChanged+=onTextAltered;
+
+			config=new TabPage();
+			config.Text="Config";
+			config.Controls.Add(thing);
+
+			user=new TextBox();
+			user.Dock=DockStyle.Fill;
+			thing.Controls.Add(user);
+			thing.SetRow(user,0);
+			thing.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+			thing.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+			thing.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+			thing.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+			thing.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+			thing.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+			thing.SetColumn(user,1);
+			username=new Label();
+			username.Text="Username";
+
+			thing.Controls.Add(username);
+			thing.SetRow(username,0);
+			thing.SetColumn(username,0);
+
+			user.TextChanged+=onTextAltered;
+			repon=new TextBox();
+			repon.TextChanged+=onTextAltered;
+			thing.Controls.Add(repon);
+			thing.SetRow(repon,1);
+			thing.SetColumn(repon,1);
+			repo=new Label();
+			repo.Text="repository";
+			thing.Controls.Add(repo);
+			thing.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+			thing.SetRow(repo,1);
+			thing.SetColumn(repo,0);
+			page.Controls.Add(view);
+			page.Controls.Add(config);
+			Controls.Add(page);
+			status=new Label();
+			status.Text="";
+			thing.Controls.Add(status);
+			thing.RowStyles[2]=new RowStyle(SizeType.AutoSize);
+			thing.SetRow(status,1);
+			thing.SetColumnSpan(status,2);
+			thing.SetColumn(status,0); 
+			thing.RowCount=3;
 		}
+		Label status;
 		private void onTextAltered(object sender,EventArgs e){
-			g.Url=this.url.Text;
-			if(g.Successful){
-				goodurl=url.Text;
+			g.Url=geturl();
+			
+			status.Text=geturl();
+
+			/*if(g.Successful){
+				goodurl=user.Text;
 				Travisci.save=true;
-			}
+			}*/
 		}
 	}
 }
