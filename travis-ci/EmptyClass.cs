@@ -147,7 +147,7 @@ namespace travisci
 		{
 			checkagain=new Timer();
 			checkagain.Enabled=true;
-			checkagain.Interval=20*60;
+			checkagain.Interval=20*60*1000;
 			checkagain.Tick+=OnTick;
 			this.Move+=OnMove;
 			this.thing=new TableLayoutPanel();
